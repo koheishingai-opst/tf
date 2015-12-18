@@ -1,0 +1,113 @@
+doctype html
+html.no-js(lang='en')
+  head
+    meta(charset='UTF-8')
+    meta(http-equiv='X-UA-Compatible', content='IE=edge')
+    meta(name='viewport', content='width=device-width, initial-scale=1')
+    title TensorFlow画像識別デモ
+    meta(name='description', content='Demo for the tutorial: Styling and Customizing File Inputs the Smart Way')
+    meta(name='keywords', content='cutom file input, styling, label, cross-browser, accessible, input type file')
+    meta(name='author', content='Osvaldas Valutis for Codrops')
+    link(rel='shortcut icon', href='favicon.ico')
+    link(rel='stylesheet', type='text/css', href='css/normalize.css')
+    link(rel='stylesheet', type='text/css', href='css/demo.css')
+    link(rel='stylesheet', type='text/css', href='css/component.css')
+    link(rel='stylesheet', type='text/css', href='http://ajax.googleapis.com/ajax/libs/jqueryui/1/themes/flick/jquery-ui.css')
+    link(rel='stylesheet', type='text/css', href='css/tagit.css')
+    script.
+      (function(e,t,n){var r=e.querySelectorAll("html")[0];r.className=r.className.replace(/(^|\\s)no-js(\s|$)/,"$1js$2")})(document,window,0);
+  body
+    .menu
+      .inner
+        .item.left.selected(data="post") 投稿
+        .item(data="update") 一覧
+        // .item(data="check") Good/Bad
+        // .item(data="like") いいね
+        // .item.right(data="about") 説明
+    .container
+      header.codrops-header
+        h1 TensorFlowデモ
+        // p
+          strong
+            a(href='https://www.tensorflow.org/versions/master/tutorials/image_recognition/index.html', target='_blank') TensorFlow
+          | を利用し、タグ生成と画像分類の補助を行います
+      .content.post
+        .box
+          form#img(action="/photos/upload" method="post" enctype="multipart/form-data")
+            input#file-7.inputfile.inputfile-6(type='file', name='file-7[]', data-multiple-caption='{count} files selected', multiple='')
+            label.no-outline(for='file-7')
+              span
+              strong
+                svg(xmlns='http://www.w3.org/2000/svg', width='20', height='17', viewbox='0 0 20 17')
+                  path(d='M10 0l-5.2 4.9h3.3v5.1h3.8v-5.1h3.3l-5.2-4.9zm9.3 11.5l-3.2-2.1h-2l3.4 2.6h-3.5c-.1 0-.2.1-.2.1l-.8 2.3h-6l-.8-2.2c-.1-.1-.1-.2-.2-.2h-3.6l3.4-2.6h-2l-3.2 2.1c-.4.3-.7 1-.6 1.5l.6 3.1c.1.5.7.9 1.2.9h16.3c.6 0 1.1-.4 1.3-.9l.6-3.1c.1-.5-.2-1.2-.7-1.5z')
+                |  Choose a file…
+        .box.keyword
+          div.loading
+            <svg opacity: 0.45; version="1.1" id="loader-1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="40px" height="40px" viewBox="0 0 40 40" enable-background="new 0 0 40 40" xml:space="preserve"> <path opacity="0.2" fill="#4b0f31" d="M20.201,5.169c-8.254,0-14.946,6.692-14.946,14.946c0,8.255,6.692,14.946,14.946,14.946 s14.946-6.691,14.946-14.946C35.146,11.861,28.455,5.169,20.201,5.169z M20.201,31.749c-6.425,0-11.634-5.208-11.634-11.634 c0-6.425,5.209-11.634,11.634-11.634c6.425,0,11.633,5.209,11.633,11.634C31.834,26.541,26.626,31.749,20.201,31.749z"></path> <path fill="#4b0f31" d="M26.013,10.047l1.654-2.866c-2.198-1.272-4.743-2.012-7.466-2.012h0v3.312h0 C22.32,8.481,24.301,9.057,26.013,10.047z" transform="rotate(264.527 20 20)"> <animateTransform attributeType="xml" attributeName="transform" type="rotate" from="0 20 20" to="360 20 20" dur="0.5s" repeatCount="indefinite"></animateTransform> </path> </svg>
+          p
+          img
+        .box.tag
+          ul#name
+            li
+        // .box.comment
+          ul#name.tagit.ui-widget.ui-widget-content.ui-corner-all
+            li.tagit-new(style="width:100%;")
+              input.ui-widget-content.ui-autocomplete-input(type='text', autocomplete='off', role='textbox', aria-autocomplete='list', aria-haspopup='true', placeholder='コメントを入力してください')
+        .box.register 登録
+      .content.update
+        .box.result.no-tag #タグなし
+      .content.check check
+      .content.like like
+      .content.about about
+    script(src="js/jquery-v1.min.js")
+    script(src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.12/jquery-ui.min.js")
+    script(src="js/jquery.custom-file-input.js")
+    script(src="js/tag-it.js")
+    script.
+      $(document).ready(function() {
+        $("#name").tagit({placeholderText: "タグを入力してください"});
+      });
+    script.
+      (function() {
+        $(".item").click(function(){$(this).addClass("selected");$(".item").not(this).removeClass("selected");
+          var path = $(this).attr("data");
+          $(".content").hide();
+          if (path === "update") {
+            $(".content.update").html("");
+            $.getJSON("/storage/tags.json", function(data){
+            $.getJSON("/storage/images.json", function(data2){
+              for(key in data){
+                var tag_name = data[key];
+                console.log(tag_name);
+                if (tag_name.length < 1){
+                  tag_name = "タグなし"
+                }
+                
+                $(".content.update").append('<div class="box result no-tag"><p style="margin-top: 0px;">#'+ tag_name +'</p><img src="http://localhost:3000/uploads/'+ key +'"><p>'+data2[key].join("")+'</p></div>');
+              }
+            });
+            });  
+          }
+          $(".content."+path).fadeIn();
+        });
+        $(".box.register").click(function(){
+          var image = $(".keyword > p").text().split(")");
+          var tag = $('#name').tagit('assignedTags');
+          var comment = $(".comment input").val();
+          $.ajax({
+            url: "/photos/update",
+            type: "POST",
+            data: JSON.stringify({file: fileName, image: image, tag: tag, comment: comment}),
+            contentType: "application/json; charset=utf-8",
+            processData: false,
+          })
+          .done(function(data) {
+                        $(".box.tag").fadeOut();
+                        $(".box.keyword").fadeOut();
+                        $(".box.register").fadeOut();
+                        $(".box.comment").fadeOut();
+                        location.reload();
+          });
+        });
+      }());
+
